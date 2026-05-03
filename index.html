@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalista PRO 4.4 - Definitivo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: { primary: '#4F46E5', secondary: '#10B981', darkbg: '#0F172A', darkcard: '#1E293B' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { transition: background-color 0.3s ease; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        .dark .glass { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.05); }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hide { display: none !important; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .nav-active { color: #4F46E5; font-weight: bold; transform: scale(1.1); transition: all 0.2s; }
+        .dark .nav-active { color: #818CF8; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        /* Imagen de perfil subida ajuste */
+        .avatar-img { object-fit: cover; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-darkbg text-slate-800 dark:text-slate-200 font-sans h-screen flex flex-col overflow-hidden">
+
+    <div id="login-view" class="flex-1 flex flex-col justify-center items-center p-6 fade-in h-full">
+        <div class="bg-white dark:bg-darkcard p-8 rounded-3xl shadow-xl w-full max-w-md text-center border border-slate-100 dark:border-slate-800">
+            <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/30 text-2xl">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Minimalista <span class="text-primary">PRO</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 mb-8 text-sm">Tu espacio de estudio definitivo</p>
+            
+            <form id="login-form" class="space-y-4">
+                <div class="relative">
+                    <i class="fa-regular fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="username" required placeholder="Tu Nombre de Usuario" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none dark:text-white">
+                </div>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <input type="password" id="password" required placeholder="Tu Contraseña" class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none dark:text-white">
+                </div>
+                <button type="submit" class="w-full bg-primary hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-all shadow-md mt-4 flex justify-center items-center gap-2">
+                    Iniciar Sesión <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-view" class="hide flex-1 flex flex-col h-full max-w-2xl mx-auto w-full relative">
+        
+        <header class="glass sticky top-0 z-10 px-6 py-4 flex justify-between items-center rounded-b-3xl">
+            <div class="flex items-center gap-3">
+                <div class="relative group cursor-pointer" onclick="openAvatarModal()" title="Cambiar Foto de Perfil">
+                    <img id="user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar" class="w-11 h-11 rounded-full bg-slate-200 border-2 border-primary avatar-img shadow-sm group-hover:opacity-80 transition">
+                    <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                        <i class="fa-solid fa-camera text-white text-xs"></i>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg leading-tight" id="user-greeting">Hola, Estudiante</h2>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[10px] bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-full font-bold shadow-sm">
+                            <i class="fa-solid fa-star text-[8px]"></i> Nvl <span id="user-level">1</span>
+                        </span>
+                        <div class="w-20 bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
+                            <div id="xp-bar" class="bg-yellow-400 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                    <i class="fa-solid fa-moon text-slate-600 dark:text-slate-300" id="theme-icon"></i>
+                </button>
+                <button onclick="logout()" class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center hover:bg-red-200 transition">
+                    <i class="fa-solid fa-power-off text-red-500"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 pb-24 space-y-6" id="main-content">
+            
+            <div id="tab-home" class="fade-in space-y-6">
+                <div class="bg-white dark:bg-darkcard border border-slate-200 dark:border-slate-800 rounded-3xl p-5 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-500 text-2xl">
+                            <i class="fa-solid fa-stopwatch"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Temporizador</h4>
+                            <div id="timer-display" class="text-3xl font-bold font-mono text-slate-800 dark:text-white leading-none mt-1">25:00</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="toggleTimer()" id="timer-btn" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/30 hover:bg-indigo-600 transition">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button onclick="resetTimer()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 transition">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-primary to-indigo-500 rounded-3xl p-6 text-white shadow-lg shadow-indigo-200 dark:shadow-none relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h3 class="font-medium opacity-90 text-sm">Productividad Diaria</h3>
+                        <div class="flex justify-between items-end mt-2">
+                            <span class="text-3xl font-bold" id="progress-percentage">0%</span>
+                            <span class="text-sm opacity-80" id="progress-text">0/0 tareas</span>
+                        </div>
+                        <div class="w-full bg-white/20 rounded-full h-2 mt-4">
+                            <div id="progress-bar" class="bg-white h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-bolt absolute -bottom-4 -right-4 text-8xl text-white/10"></i>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-lg">Tareas Prioritarias</h3>
+                        <button onclick="document.getElementById('task-modal').classList.remove('hide')" class="text-primary bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-indigo-100 transition">
+                            <i class="fa-solid fa-plus"></i> Nueva
+                        </button>
+                    </div>
+                    <div id="tasks-container" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <div id="tab-calendar" class="fade-in hide space-y-6">
+                <div class="bg-white dark:bg-darkcard rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-xl" id="calendar-month">Mes Año</h3>
+                    </div>
+                    <div class="calendar-grid text-center text-xs font-bold text-slate-400 mb-2">
+                        <div>LU</div><div>MA</div><div>MI</div><div>JU</div><div>VI</div><div>SA</div><div>DO</div>
+                    </div>
+                    <div id="calendar-days" class="calendar-grid gap-y-2 text-center text-sm"></div>
+                </div>
+
+                <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900/50">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-primary"><i class="fa-solid fa-bell"></i> Próximos Eventos</h4>
+                    </div>
+                    <ul class="space-y-2 text-sm" id="upcoming-events"></ul>
+                </div>
+            </div>
+
+            <div id="tab-notes" class="fade-in hide space-y-6">
+                <h3 class="font-bold text-2xl mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-secondary"></i> Bloc de Notas
+                </h3>
+                
+                <div class="bg-white dark:bg-darkcard p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <input type="text" id="note-title" placeholder="Título de la nota..." class="w-full p-3 mb-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-secondary focus:outline-none dark:text-white font-bold placeholder-slate-400">
+                    <textarea id="note-content" rows="4" placeholder="Escribe tus apuntes, ideas o resúmenes aquí..." class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-secondary focus:outline-none dark:text-white resize-none placeholder-slate-400"></textarea>
+                    
+                    <button onclick="addNote()" class="w-full mt-3 bg-secondary hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-secondary/30 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Nota
+                    </button>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-lg mb-3">Tus Notas Guardadas</h4>
+                    <div id="notes-container" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <div id="tab-chat" class="fade-in hide flex flex-col h-[calc(100vh-170px)]">
+                <h3 class="font-bold text-2xl mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-sparkles text-primary"></i> Asistente IA
+                </h3>
+                <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-4">
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 text-white text-xs"><i class="fa-solid fa-robot"></i></div>
+                        <div class="bg-white dark:bg-darkcard p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-slate-100 dark:border-slate-800 dark:text-slate-200 max-w-[85%]">
+                            ¡Hola! Soy Gemini. ¿Qué vas a estudiar hoy?
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2 relative mt-auto">
+                    <input type="text" id="chat-input" placeholder="Pregúntame algo..." class="w-full p-4 bg-white dark:bg-darkcard border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary focus:outline-none dark:text-white shadow-sm" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                    <button onclick="sendChatMessage()" class="bg-primary hover:bg-indigo-600 text-white w-14 rounded-2xl flex items-center justify-center transition shadow-md shrink-0">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="tab-stats" class="fade-in hide space-y-6">
+                <h3 class="font-bold text-2xl mb-4">Tu Rendimiento</h3>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-darkcard p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 text-center">
+                        <i class="fa-solid fa-check-double text-2xl text-secondary mb-2"></i>
+                        <div class="text-3xl font-bold" id="stat-completed">0</div>
+                        <div class="text-xs text-slate-500 uppercase font-semibold mt-1">Completadas</div>
+                    </div>
+                    <div class="bg-white dark:bg-darkcard p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 text-center">
+                        <i class="fa-solid fa-stopwatch text-2xl text-primary mb-2"></i>
+                        <div class="text-3xl font-bold" id="stat-sessions">0</div>
+                        <div class="text-xs text-slate-500 uppercase font-semibold mt-1">Sesiones</div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-darkcard p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
+                    <h4 class="font-bold mb-4 text-center">Balance</h4>
+                    <div class="w-48 mx-auto"><canvas id="taskChart"></canvas></div>
+                </div>
+
+                <div class="bg-slate-100 dark:bg-slate-800/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-700">
+                    <h4 class="font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-hard-drive text-slate-500"></i> Respaldo de Datos</h4>
+                    <p class="text-xs text-slate-500 mb-4">Guarda tus tareas, notas y progreso en tu dispositivo para no perderlos, o cárgalos si cambias de PC.</p>
+                    <div class="flex gap-3">
+                        <button onclick="exportData()" class="flex-1 bg-white dark:bg-darkcard border border-slate-200 dark:border-slate-600 py-2 rounded-xl text-sm font-semibold hover:border-primary transition flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-download"></i> Exportar
+                        </button>
+                        <label class="flex-1 bg-white dark:bg-darkcard border border-slate-200 dark:border-slate-600 py-2 rounded-xl text-sm font-semibold hover:border-primary transition flex justify-center items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-upload"></i> Importar
+                            <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <nav class="glass absolute bottom-0 w-full px-2 py-4 rounded-t-3xl border-t border-slate-200 dark:border-slate-800">
+            <ul class="flex justify-between items-center text-slate-400">
+                <li class="flex-1 flex justify-center">
+                    <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 nav-active">
+                        <i class="fa-solid fa-house text-xl"></i><span class="text-[10px] font-semibold">Inicio</span>
+                    </button>
+                </li>
+                <li class="flex-1 flex justify-center">
+                    <button onclick="switchTab('calendar')" id="nav-calendar" class="flex flex-col items-center gap-1 hover:text-primary transition">
+                        <i class="fa-regular fa-calendar text-xl"></i><span class="text-[10px] font-semibold">Agenda</span>
+                    </button>
+                </li>
+                <li class="flex-1 flex justify-center">
+                    <button onclick="switchTab('notes')" id="nav-notes" class="flex flex-col items-center gap-1 hover:text-primary transition">
+                        <i class="fa-solid fa-book text-xl"></i><span class="text-[10px] font-semibold">Notas</span>
+                    </button>
+                </li>
+                <li class="flex-1 flex justify-center">
+                    <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center gap-1 hover:text-primary transition">
+                        <i class="fa-solid fa-robot text-xl"></i><span class="text-[10px] font-semibold">IA</span>
+                    </button>
+                </li>
+                <li class="flex-1 flex justify-center">
+                    <button onclick="switchTab('stats')" id="nav-stats" class="flex flex-col items-center gap-1 hover:text-primary transition">
+                        <i class="fa-solid fa-chart-pie text-xl"></i><span class="text-[10px] font-semibold">Métricas</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="task-modal" class="hide fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkcard w-full max-w-sm rounded-3xl p-6 shadow-2xl transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">Nueva Tarea</h3>
+                <button onclick="document.getElementById('task-modal').classList.add('hide')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <input type="text" id="new-task-text" placeholder="Ej: Leer capítulo 4" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl mb-3 focus:ring-2 focus:ring-primary focus:outline-none dark:text-white">
+            
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <select id="new-task-tag" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none dark:text-white text-sm text-slate-500 appearance-none">
+                    <option value="blue">📘 Estudio</option>
+                    <option value="red">🚨 Examen</option>
+                    <option value="green">📝 Proyecto</option>
+                    <option value="purple">🔮 Personal</option>
+                </select>
+                <input type="date" id="new-task-date" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none dark:text-white text-sm text-slate-500">
+            </div>
+
+            <button onclick="addTask()" class="w-full bg-primary hover:bg-indigo-600 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-primary/30">
+                Guardar Tarea
+            </button>
+        </div>
+    </div>
+
+    <div id="avatar-modal" class="hide fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkcard w-full max-w-sm rounded-3xl p-6 shadow-2xl transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">Cambiar Foto de Perfil</h3>
+                <button onclick="closeAvatarModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Elige un avatar o sube tu propia imagen:</p>
+            
+            <div class="grid grid-cols-4 gap-3 mb-5">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-full aspect-square rounded-full cursor-pointer border-2 border-transparent hover:border-primary hover:shadow-lg transition bg-slate-100" onclick="selectAvatar('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix')">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver" class="w-full aspect-square rounded-full cursor-pointer border-2 border-transparent hover:border-primary hover:shadow-lg transition bg-slate-100" onclick="selectAvatar('https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver')">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="w-full aspect-square rounded-full cursor-pointer border-2 border-transparent hover:border-primary hover:shadow-lg transition bg-slate-100" onclick="selectAvatar('https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka')">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi" class="w-full aspect-square rounded-full cursor-pointer border-2 border-transparent hover:border-primary hover:shadow-lg transition bg-slate-100" onclick="selectAvatar('https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi')">
+                
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=George" class="w-full aspect-square rounded-full cursor-pointer border-2 border-transparent hover:border-primary hover:shadow-lg transition bg-slate-100" onclick="selectAvatar('https://api.dicebear.com/7.x/avataaars/svg?seed=George')">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jocelyn" class="w-full aspect-square rounded-full cursor-pointer border-2 border-transparent hover:border-primary hover:shadow-lg transition bg-slate-100" onclick="selectAvatar('https://api.dicebear.com/7.x/avataaars/svg?seed=Jocelyn')">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jack" class="w-full aspect-square rounded-full cursor-pointer border-2 border-transparent hover:border-primary hover:shadow-lg transition bg-slate-100" onclick="selectAvatar('https://api.dicebear.com/7.x/avataaars/svg?seed=Jack')">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sara" class="w-full aspect-square rounded-full cursor-pointer border-2 border-transparent hover:border-primary hover:shadow-lg transition bg-slate-100" onclick="selectAvatar('https://api.dicebear.com/7.x/avataaars/svg?seed=Sara')">
+            </div>
+
+            <div class="relative">
+                <label class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-3 rounded-xl text-sm font-bold hover:border-primary transition flex justify-center items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300 shadow-sm">
+                    <i class="fa-solid fa-cloud-arrow-up text-primary"></i> Subir Foto de Galería
+                    <input type="file" class="hidden" accept="image/*" onchange="uploadAvatar(event)">
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🔑 API KEY DE GEMINI
+        // ==========================================
+        const GEMINI_API_KEY = "AIzaSyCGU3fQegYzilUWRr82iVUjZjUNjBoS-Rc"; 
+
+        // ESTADO GLOBAL
+        let tasks = JSON.parse(localStorage.getItem('pro_tasks')) || [];
+        let notes = JSON.parse(localStorage.getItem('pro_notes')) || []; 
+        let userStats = JSON.parse(localStorage.getItem('pro_stats')) || { xp: 0, sessions: 0 };
+        let chartInstance = null;
+
+        // TEMPORIZADOR VARS
+        let timerInterval;
+        let timeLeft = 25 * 60; // 25 min
+        let isTimerRunning = false;
+
+        // --- SISTEMA DE LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value; // Obligatorio, pero no bloquea el sistema localmente
+            
+            localStorage.setItem('pro_logged_in', 'true');
+            localStorage.setItem('pro_username', user);
+            
+            showApp(user);
+        });
+
+        function checkLogin() {
+            if (localStorage.getItem('pro_logged_in') === 'true') {
+                showApp(localStorage.getItem('pro_username'));
+            }
+        }
+
+        function showApp(username) {
+            document.getElementById('login-view').classList.add('hide');
+            document.getElementById('app-view').classList.remove('hide');
+            document.getElementById('user-greeting').innerText = `Hola, ${username.split('@')[0]}`;
+            
+            // Cargar avatar guardado o dejar el default
+            const savedAvatar = localStorage.getItem('pro_avatar') || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix";
+            document.getElementById('user-avatar').src = savedAvatar;
+
+            initApp();
+        }
+
+        function logout() {
+            localStorage.removeItem('pro_logged_in');
+            document.getElementById('app-view').classList.add('hide');
+            document.getElementById('login-view').classList.remove('hide');
+            document.getElementById('password').value = ''; // Limpiar contraseña por seguridad visual
+        }
+
+        // --- GESTIÓN DE AVATAR (NUEVO) ---
+        function openAvatarModal() {
+            document.getElementById('avatar-modal').classList.remove('hide');
+        }
+
+        function closeAvatarModal() {
+            document.getElementById('avatar-modal').classList.add('hide');
+        }
+
+        function selectAvatar(url) {
+            localStorage.setItem('pro_avatar', url);
+            document.getElementById('user-avatar').src = url;
+            closeAvatarModal();
+        }
+
+        function uploadAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Image = e.target.result;
+                    selectAvatar(base64Image);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // --- INICIALIZACIÓN ---
+        function initApp() {
+            updateXP();
+            renderTasks();
+            renderNotes();
+            document.getElementById('stat-sessions').innerText = userStats.sessions || 0;
+            if (localStorage.getItem('pro_theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
+            }
+        }
+
+        function switchTab(tabName) {
+            ['home', 'calendar', 'notes', 'chat', 'stats'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hide');
+                document.getElementById(`nav-${t}`).classList.remove('nav-active', 'text-primary');
+            });
+            document.getElementById(`tab-${tabName}`).classList.remove('hide');
+            document.getElementById(`nav-${tabName}`).classList.add('nav-active', 'text-primary');
+            if(tabName === 'stats') updateChart();
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('theme-icon').classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
+            localStorage.setItem('pro_theme', isDark ? 'dark' : 'light');
+            if(!document.getElementById('tab-stats').classList.contains('hide')) updateChart();
+        }
+
+        // --- GAMIFICACIÓN ---
+        function addXP(amount) {
+            userStats.xp += amount;
+            localStorage.setItem('pro_stats', JSON.stringify(userStats));
+            updateXP();
+        }
+
+        function updateXP() {
+            const level = Math.floor(userStats.xp / 100) + 1;
+            const currentLevelXP = userStats.xp % 100; 
+            
+            document.getElementById('user-level').innerText = level;
+            document.getElementById('xp-bar').style.width = `${currentLevelXP}%`;
+        }
+
+        // --- BLOC DE NOTAS ---
+        function addNote() {
+            const titleInput = document.getElementById('note-title');
+            const contentInput = document.getElementById('note-content');
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+            
+            if (title || content) {
+                const dateStr = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                notes.unshift({ id: Date.now(), title: title || "Nota sin título", content: content, date: dateStr });
+                localStorage.setItem('pro_notes', JSON.stringify(notes));
+                renderNotes();
+                titleInput.value = '';
+                contentInput.value = '';
+                addXP(5); 
+            } else { alert("La nota está vacía."); }
+        }
+
+        function deleteNote(id) {
+            notes = notes.filter(n => n.id !== id);
+            localStorage.setItem('pro_notes', JSON.stringify(notes));
+            renderNotes();
+        }
+
+        function renderNotes() {
+            const container = document.getElementById('notes-container');
+            container.innerHTML = '';
+            if (notes.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 dark:text-slate-400 text-center text-sm py-6 italic border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">No tienes notas guardadas aún.</p>`;
+                return;
+            }
+            notes.forEach(note => {
+                const div = document.createElement('div');
+                div.className = "bg-white dark:bg-darkcard p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 relative group";
+                const formattedContent = note.content.replace(/\n/g, '<br>');
+                div.innerHTML = `
+                    <div class="pr-8">
+                        <h5 class="font-bold text-slate-800 dark:text-white text-lg mb-1">${note.title}</h5>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">${formattedContent}</p>
+                        <span class="text-[10px] text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded"><i class="fa-regular fa-clock"></i> ${note.date}</span>
+                    </div>
+                    <button onclick="deleteNote(${note.id})" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-red-50 text-red-500 dark:bg-red-900/30 flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition hover:bg-red-100">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // --- TEMPORIZADOR ---
+        function toggleTimer() {
+            if (isTimerRunning) {
+                clearInterval(timerInterval);
+                document.getElementById('timer-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+                document.getElementById('timer-btn').classList.replace('bg-orange-500', 'bg-primary');
+            } else {
+                timerInterval = setInterval(updateTimerDisplay, 1000);
+                document.getElementById('timer-btn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+                document.getElementById('timer-btn').classList.replace('bg-primary', 'bg-orange-500');
+            }
+            isTimerRunning = !isTimerRunning;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timeLeft = 25 * 60;
+            document.getElementById('timer-display').innerText = "25:00";
+            document.getElementById('timer-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            document.getElementById('timer-btn').classList.replace('bg-orange-500', 'bg-primary');
+        }
+
+        function updateTimerDisplay() {
+            if (timeLeft <= 0) {
+                resetTimer();
+                alert("¡Sesión de temporizador completada! Tómate 5 minutos de descanso.");
+                if(!userStats.sessions) userStats.sessions = 0;
+                userStats.sessions += 1;
+                localStorage.setItem('pro_stats', JSON.stringify(userStats));
+                document.getElementById('stat-sessions').innerText = userStats.sessions;
+                addXP(20); 
+                return;
+            }
+            timeLeft--;
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            document.getElementById('timer-display').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // --- TAREAS ---
+        function addTask() {
+            const text = document.getElementById('new-task-text').value.trim();
+            const date = document.getElementById('new-task-date').value;
+            const tag = document.getElementById('new-task-tag').value;
+            
+            if (text) {
+                tasks.push({ id: Date.now(), text, completed: false, date, tag });
+                localStorage.setItem('pro_tasks', JSON.stringify(tasks));
+                document.getElementById('new-task-text').value = '';
+                document.getElementById('new-task-date').value = '';
+                document.getElementById('task-modal').classList.add('hide');
+                renderTasks();
+            }
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(t => {
+                if (t.id === id) {
+                    const newState = !t.completed;
+                    if (newState) addXP(10); 
+                    return { ...t, completed: newState };
+                }
+                return t;
+            });
+            localStorage.setItem('pro_tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            localStorage.setItem('pro_tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        const tagColors = {
+            'blue': 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+            'red': 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
+            'green': 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+            'purple': 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
+        };
+
+        function renderTasks() {
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+            let completedCount = 0;
+
+            tasks.forEach(t => {
+                if(t.completed) completedCount++;
+                const dateBadge = t.date ? `<span class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-slate-500 mt-1 inline-block"><i class="fa-regular fa-calendar mr-1"></i> ${t.date}</span>` : '';
+                const tagBadge = t.tag ? `<span class="text-[9px] font-bold px-2 py-1 rounded ml-2 uppercase ${tagColors[t.tag]}">${t.tag === 'blue' ? 'Estudio' : t.tag === 'red' ? 'Examen' : t.tag === 'green' ? 'Proyecto' : 'Personal'}</span>` : '';
+
+                const div = document.createElement('div');
+                div.className = `bg-white dark:bg-darkcard p-4 rounded-2xl shadow-sm border ${t.completed ? 'border-secondary/30 opacity-70' : 'border-slate-100 dark:border-slate-800'} flex items-center justify-between transition-all`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-4 cursor-pointer flex-1" onclick="toggleTask(${t.id})">
+                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${t.completed ? 'bg-secondary border-secondary' : 'border-slate-300 dark:border-slate-600'}">
+                            ${t.completed ? '<i class="fa-solid fa-check text-white text-xs"></i>' : ''}
+                        </div>
+                        <div>
+                            <div class="flex items-center">
+                                <p class="font-medium ${t.completed ? 'line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'}">${t.text}</p>
+                                ${tagBadge}
+                            </div>
+                            ${dateBadge}
+                        </div>
+                    </div>
+                    <button onclick="deleteTask(${t.id})" class="text-slate-300 hover:text-red-500 transition px-2 shrink-0"><i class="fa-solid fa-trash-can"></i></button>
+                `;
+                container.appendChild(div);
+            });
+
+            const total = tasks.length;
+            const percentage = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+            document.getElementById('progress-percentage').innerText = `${percentage}%`;
+            document.getElementById('progress-text').innerText = `${completedCount}/${total} tareas`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('stat-completed').innerText = completedCount;
+
+            renderCalendar();
+            renderUpcomingEvents();
+            if(!document.getElementById('tab-stats').classList.contains('hide')) updateChart();
+        }
+
+        // --- CALENDARIO Y EVENTOS ---
+        function renderCalendar() {
+            const date = new Date();
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            document.getElementById('calendar-month').innerText = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+            const daysContainer = document.getElementById('calendar-days');
+            daysContainer.innerHTML = '';
+            
+            for(let i = 1; i <= 35; i++) {
+                let dayNum = i <= 31 ? i : '';
+                let isToday = i === date.getDate();
+                let hasTaskClass = '';
+                
+                let tasksThisDay = tasks.filter(t => t.date && parseInt(t.date.split('-')[2]) === i && !t.completed);
+                if (tasksThisDay.length > 0 && dayNum !== '') {
+                    const firstTag = tasksThisDay[0].tag || 'blue';
+                    const borderColors = { 'blue': 'border-blue-500', 'red': 'border-red-500', 'green': 'border-green-500', 'purple': 'border-purple-500' };
+                    hasTaskClass = `border-b-4 ${borderColors[firstTag]} font-bold`;
+                }
+
+                const div = document.createElement('div');
+                div.className = `p-2 rounded-xl flex items-center justify-center h-10 w-10 mx-auto ${isToday ? 'bg-primary text-white font-bold shadow-md' : 'text-slate-600 dark:text-slate-300'} ${hasTaskClass}`;
+                div.innerText = dayNum;
+                daysContainer.appendChild(div);
+            }
+        }
+
+        function renderUpcomingEvents() {
+            const eventsContainer = document.getElementById('upcoming-events');
+            eventsContainer.innerHTML = '';
+            const upcoming = tasks.filter(t => t.date && !t.completed).sort((a, b) => new Date(a.date) - new Date(b.date));
+            if (upcoming.length === 0) {
+                eventsContainer.innerHTML = '<li class="text-slate-500 dark:text-slate-400 italic text-center py-2">No tienes eventos próximos.</li>';
+                return;
+            }
+            upcoming.forEach(t => {
+                const dateObj = new Date(t.date + 'T00:00:00');
+                const dateStr = dateObj.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
+                const li = document.createElement('li');
+                li.className = "flex items-center gap-3 p-3 bg-white dark:bg-darkcard rounded-xl shadow-sm border border-slate-100 dark:border-slate-800";
+                li.innerHTML = `
+                    <div class="bg-primary/10 text-primary font-bold px-2 py-1 rounded-lg text-xs w-14 text-center shrink-0 uppercase">${dateStr}</div>
+                    <span class="font-medium text-slate-700 dark:text-slate-200 truncate flex-1">${t.text}</span>
+                    <button onclick="toggleTask(${t.id})" class="w-6 h-6 rounded-full border-2 border-slate-300 dark:border-slate-600 hover:border-secondary transition"></button>
+                `;
+                eventsContainer.appendChild(li);
+            });
+        }
+
+        function updateChart() {
+            const completed = tasks.filter(t => t.completed).length;
+            const pending = tasks.length - completed;
+            const ctx = document.getElementById('taskChart').getContext('2d');
+            const textColor = document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569';
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: ['Completadas', 'Pendientes'], datasets: [{ data: [completed, pending], backgroundColor: ['#10B981', '#4F46E5'], borderWidth: 0 }] },
+                options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: textColor } } }, cutout: '75%' }
+            });
+        }
+
+        // --- IA CHAT ---
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            appendMessage('user', text);
+            input.value = '';
+
+            appendTypingIndicator();
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: text }] }] })
+                });
+                const data = await response.json();
+                removeTypingIndicator();
+                if(data.candidates) appendMessage('bot', data.candidates[0].content.parts[0].text);
+                else appendMessage('bot', "Error procesando respuesta.");
+            } catch (error) {
+                removeTypingIndicator();
+                appendMessage('bot', "❌ Error de conexión. Verifica tu API Key o tu internet.");
+            }
+        }
+
+        function appendMessage(sender, text) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            if (sender === 'user') {
+                div.className = "flex gap-3 justify-end fade-in";
+                div.innerHTML = `<div class="bg-primary p-3 rounded-2xl rounded-tr-none shadow-sm text-sm text-white max-w-[85%]">${text}</div>`;
+            } else {
+                div.className = "flex gap-3 fade-in";
+                const formattedText = typeof marked !== 'undefined' ? marked.parse(text) : text;
+                div.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 text-white text-xs"><i class="fa-solid fa-robot"></i></div>
+                    <div class="bg-white dark:bg-darkcard p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-slate-100 dark:border-slate-800 dark:text-slate-200 max-w-[85%] prose prose-sm dark:prose-invert">${formattedText}</div>
+                `;
+            }
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendTypingIndicator() {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.id = "typing-indicator";
+            div.className = "flex gap-3 fade-in";
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 text-white text-xs"><i class="fa-solid fa-robot"></i></div>
+                <div class="bg-white dark:bg-darkcard p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-1">
+                    <div class="w-2 h-2 bg-primary rounded-full typing-dot"></div><div class="w-2 h-2 bg-primary rounded-full typing-dot"></div><div class="w-2 h-2 bg-primary rounded-full typing-dot"></div>
+                </div>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+        function removeTypingIndicator() { const ind = document.getElementById('typing-indicator'); if (ind) ind.remove(); }
+
+        // --- IMPORTAR / EXPORTAR DATOS ---
+        function exportData() {
+            const avatarData = localStorage.getItem('pro_avatar');
+            const dataStr = JSON.stringify({ tasks: tasks, stats: userStats, notes: notes, avatar: avatarData });
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const exportFileDefaultName = 'MinimalistaPro_Respaldo.json';
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (importedData.tasks && importedData.stats) {
+                        tasks = importedData.tasks;
+                        userStats = importedData.stats;
+                        notes = importedData.notes || []; 
+                        
+                        localStorage.setItem('pro_tasks', JSON.stringify(tasks));
+                        localStorage.setItem('pro_stats', JSON.stringify(userStats));
+                        localStorage.setItem('pro_notes', JSON.stringify(notes));
+                        
+                        if(importedData.avatar) {
+                            localStorage.setItem('pro_avatar', importedData.avatar);
+                            document.getElementById('user-avatar').src = importedData.avatar;
+                        }
+                        
+                        initApp();
+                        alert("¡Datos importados con éxito!");
+                    } else { alert("El archivo no tiene el formato correcto."); }
+                } catch (err) { alert("Error al leer el archivo JSON."); }
+            };
+            reader.readAsText(file);
+        }
+
+        checkLogin();
+    </script>
+</body>
+</html>
